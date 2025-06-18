@@ -16,8 +16,6 @@ describe("GET /top-user-stats", () => {
       expect(res.headers["content-type"]).toMatch(/json/);
       expect(res.status).toEqual(200);
       expect(res.body).toMatchObject({ id: expect.any(Number) });
-
-      await sleep(100);
     }
 
     // As user test, retreive my message
