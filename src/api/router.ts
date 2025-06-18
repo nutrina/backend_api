@@ -141,25 +141,24 @@ authedRouter.get("/user/:username/stats", async (req, res) => {
 });
 
 authedRouter.get("/top-user-stats", async (req, res) => {
-  return req.db.getTopUsers(5).then(async (topUsers) => {
-    const response: UserStats[] = [];
+  const topUsers = await req.db.getTopUsers(5);
+  const response: UserStats[] = [];
 
-    for (const user of topUsers) {
-      const messageStats = await req.db.getUserMessageStats(user);
-      const [firstMessage] = await req.db.getMessages({
-        user,
-        offset: 0,
-        limit: 1,
-        sort: "asc",
-      });
+  for (const user of topUsers) {
+    const messageStats = await req.db.getUserMessageStats(user);
+    const [firstMessage] = await req.db.getMessages({
+      user,
+      offset: 0,
+      limit: 1,
+      sort: "desc",
+    });
 
-      response.push({
-        username: user,
-        firstMessage: firstMessage.message,
-        ...messageStats,
-      });
-    }
+    response.push({
+      username: user,
+      firstMessage: firstMessage.message,
+      ...messageStats,
+    });
+  }
 
-    res.send(response);
-  });
+  res.send(response);
 });

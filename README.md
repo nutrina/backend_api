@@ -26,3 +26,34 @@ Once you are happy with your changes, push them to a new github repo and send us
 ## Recommendations
 
 Add your recommendations here:
+
+- need better validation for limit & offset --- could use express-validator for this
+- also have not yet checked timestamps in tests for created messages --- need to add check that validates that they are within a short period of the validation
+- I have also created an API to create user (I mistakingly thought that would be required)
+- I have not cleaned up ressource (like new messages I created) using beforeEach / afterEach hooks in the tests, I have instead used different test user names to avoid interference
+
+## Notes
+
+Assumptions:
+
+- I have written the tests against the mock data (meaning for example I assume user admin already exists, etc ...)
+
+- regarding `src/data`:
+  - the sorting logic seems to be reversed. I would expect to `sort: "asc"` and get the oldest message first (smaller timestamp). Not sure if this has been done on purpose. Fix should be in the `data/database` file, which I was told not to touch.
+   ```
+     const [firstMessage] = await req.db.getMessages({
+        user,
+        offset: 0,
+        limit: 1,
+        sort: "desc",
+    });
+    ```
+
+    The fixed sorting order should be (we switch the `-1` for `1`):
+
+    ```
+    messageList.sort(
+      (a, b) =>
+        (a.date.getTime() - b.date.getTime()) * (sort === "asc" ? 1 : -1)
+    );
+    ```
