@@ -3,8 +3,10 @@ import { auth } from "../data";
 import { authRequest, handleErrors } from "./middleware";
 import type { UserStats } from "./types";
 import type { Filter } from "../data/database";
-
+import { users } from "../data/auth";
 export const router = express.Router();
+
+router.use(express.json());
 
 router.post("/auth/createUser", (req, res) => {
   const userId = auth.createUser(req.body);
@@ -15,6 +17,7 @@ router.post("/auth/createUser", (req, res) => {
 // routes in this router are authenticated and require a user and password query parameter
 // e.g. add ?user=admin&password=admin to the URL to authenticate
 const authedRouter = express.Router();
+authedRouter.use(express.json());
 authedRouter.use(authRequest);
 router.use(authedRouter);
 
@@ -26,9 +29,12 @@ router.post("/auth/changePassword", (req, res) => {
   const user = req.body.user as string;
   const password = req.body.password as string;
 
-  auth.changePassword(user, password);
-
-  res.send({ status: "ok" });
+  if (!(user in users)) {
+    res.status(400).send({ message: "User does not exist" });
+  } else {
+    auth.changePassword(user, password);
+    res.send({ status: "ok" });
+  }
 });
 
 authedRouter.post("/message", async (req, res) => {
