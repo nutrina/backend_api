@@ -72,10 +72,20 @@ authedRouter.get("/message", async (req, res) => {
   res.send({ messages });
 });
 
-authedRouter.get("/message/delete/:id", async (req, res) => {
+authedRouter.delete("/message/:id", async (req, res) => {
   const id = req.params.id as string;
-
-  res.send(await req.db.deleteMessage(+id));
+  const isDeletedOk = await req.db.deleteMessage(+id);
+  if (isDeletedOk) {
+    res.send({
+      status: "ok",
+    });
+  } else {
+    res
+      .send({
+        error: "Failed to delete message (bad id)",
+      })
+      .status(400);
+  }
 });
 
 authedRouter.get("/user/:username/message", async (req, res) => {
