@@ -142,23 +142,50 @@ authedRouter.get("/user/:username/stats", async (req, res) => {
 
 authedRouter.get("/top-user-stats", async (req, res) => {
   const topUsers = await req.db.getTopUsers(5);
-  const response: UserStats[] = [];
+  const userPromises = topUsers.map((user) => {
+    return new Promise<UserStats>(async (resolve, reject) => {
+      const messageStats = await req.db.getUserMessageStats(user);
+      const [firstMessage] = await req.db.getMessages({
+        user,
+        offset: 0,
+        limit: 1,
+        sort: "desc",
+      });
 
-  for (const user of topUsers) {
-    const messageStats = await req.db.getUserMessageStats(user);
-    const [firstMessage] = await req.db.getMessages({
-      user,
-      offset: 0,
-      limit: 1,
-      sort: "desc",
+      resolve({
+        username: user,
+        firstMessage: firstMessage.message,
+        ...messageStats,
+      } as UserStats);
     });
+  });
 
-    response.push({
-      username: user,
-      firstMessage: firstMessage.message,
-      ...messageStats,
+  const response = await Promise.all(userPromises);
+
+  res.send(response);
+});
+
+authedRouter.get("/top-50-user-stats", async (req, res) => {
+  const topUsers = await req.db.getTopUsers(50);
+  const userPromises = topUsers.map((user) => {
+    return new Promise<UserStats>(async (resolve, reject) => {
+      const messageStats = await req.db.getUserMessageStats(user);
+      const [firstMessage] = await req.db.getMessages({
+        user,
+        offset: 0,
+        limit: 1,
+        sort: "desc",
+      });
+
+      resolve({
+        username: user,
+        firstMessage: firstMessage.message,
+        ...messageStats,
+      } as UserStats);
     });
-  }
+  });
+
+  const response = await Promise.all(userPromises);
 
   res.send(response);
 });
