@@ -30,9 +30,9 @@ export const authRequest = (
 
   if (!isValid) {
     res.status(400).send("Unauthorized");
+  } else {
+    next();
   }
-
-  next();
 };
 
 export const handleErrors = (
