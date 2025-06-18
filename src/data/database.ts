@@ -88,7 +88,7 @@ export class Db {
     return sortedUsers.slice(0, limit);
   };
 }
-type Filter = {
+export type Filter = {
   limit?: number;
   offset?: number;
   user?: string;

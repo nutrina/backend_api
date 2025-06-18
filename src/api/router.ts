@@ -1,7 +1,8 @@
 import express from "express";
 import { auth } from "../data";
-import { authRequest } from "./middleware";
+import { authRequest, handleErrors } from "./middleware";
 import type { UserStats } from "./types";
+import type { Filter } from "../data/database";
 
 export const router = express.Router();
 
@@ -17,13 +18,17 @@ const authedRouter = express.Router();
 authedRouter.use(authRequest);
 router.use(authedRouter);
 
+// Add error handling to all routers
+router.use(handleErrors);
+authedRouter.use(handleErrors);
+
 router.post("/auth/changePassword", (req, res) => {
   const user = req.body.user as string;
   const password = req.body.password as string;
 
   auth.changePassword(user, password);
 
-  res.send("ok");
+  res.send({ status: "ok" });
 });
 
 authedRouter.post("/message", async (req, res) => {
@@ -32,16 +37,33 @@ authedRouter.post("/message", async (req, res) => {
 
   const id = await req.db.createMessage(user, message);
 
-  res.send(id);
+  res.send({ id });
 });
 
 authedRouter.get("/message", async (req, res) => {
-  const limit = req.query.limit as string;
-  const offset = req.query.offset as string;
+  // We need to check for the validity of the input parameters and:
+  // a. either reject the call and return error if params are invalid. A framework like https://www.npmjs.com/package/express-validator can be usefull
+  // b. use dafaults if inputs are invalid
+  //
+  // For this exercise I chose b
 
-  const messages = await req.db.getMessages({ limit: +limit, offset: +offset });
+  const limit = +(req.query.limit as string); // We'll just default to 10
+  const offset = +(req.query.offset as string); // We'll default to 0
+  const filter: Filter = {};
 
-  res.send(messages);
+  // We'll only set valid inputs on filter, so the defaults that are specified in
+  // getMessages can be used otherwise
+  if (!isNaN(limit)) {
+    filter["limit"] = limit;
+  }
+
+  if (!isNaN(offset)) {
+    filter["offset"] = offset;
+  }
+
+  const messages = await req.db.getMessages(filter);
+
+  res.send({ messages });
 });
 
 authedRouter.get("/message/delete/:id", async (req, res) => {

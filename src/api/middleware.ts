@@ -29,7 +29,7 @@ export const authRequest = (
   const isValid = auth.validateCredentials(user, password);
 
   if (!isValid) {
-    res.status(400).send("Unauthorized");
+    res.status(400).send({ message: "Unauthorized" });
   } else {
     next();
   }
@@ -42,5 +42,5 @@ export const handleErrors = (
   _next: NextFunction
 ) => {
   console.error(err.stack);
-  res.status(500).send(err.message);
+  res.status(500).send({ message: err.message });
 };

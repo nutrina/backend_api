@@ -35,5 +35,6 @@ export const createUser = (data: CreateUserObj): number => {
 };
 
 export const changePassword = (user: string, newPassword: string): void => {
+  // TODO: one should probably add password strength verification here (length, use special chars, etc ...)
   users[user] = newPassword;
 };
