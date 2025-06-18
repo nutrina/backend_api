@@ -37,6 +37,22 @@ router.post("/auth/changePassword", (req, res) => {
   }
 });
 
+router.post("/user", (req, res) => {
+  const user = req.body.user as string;
+  const password = req.body.password as string;
+
+  try {
+    auth.createUser({ user, password });
+    res.send({ status: "ok" });
+  } catch (error) {
+    // createUser might throw if a user with this name already exists
+    if (error instanceof Error) {
+      res.send({ message: error.message }).status(400);
+    }
+    // else will let the default handler report 500 ...
+  }
+});
+
 authedRouter.post("/message", async (req, res) => {
   const user = req.body.user as string;
   const message = req.body.message as string;
@@ -89,6 +105,8 @@ authedRouter.delete("/message/:id", async (req, res) => {
 });
 
 authedRouter.get("/user/:username/message", async (req, res) => {
+  // TODO: handle validation of parameters ...
+
   const limit = req.query.limit as string;
   const offset = req.query.offset as string;
   const user = req.params.username as string;
@@ -99,7 +117,7 @@ authedRouter.get("/user/:username/message", async (req, res) => {
     offset: +offset,
   });
 
-  res.send(messages);
+  res.send({ messages });
 });
 
 authedRouter.get("/user/:username/stats", async (req, res) => {

@@ -1,4 +1,4 @@
-import { isNumberObject } from "util/types";
+
 import { app } from "../";
 import request from "supertest";
 
@@ -72,7 +72,7 @@ describe("GET /message", () => {
   });
 });
 
-describe.only("DELETE /message/:id", () => {
+describe("DELETE /message/:id", () => {
   it("should delete a message identified by id", async () => {
     // Create new message
     const res = await request(app)
