@@ -47,7 +47,7 @@ Assumptions:
 
 - I have written the tests against the mock data (meaning for example I assume user admin already exists, etc ...)
 
-- regarding `src/data`:
+Regarding `src/data`:
 
   - the sorting logic seems to be reversed. I would expect to `sort: "asc"` and get the oldest message first (smaller timestamp). Not sure if this has been done on purpose. Fix should be in the `data/database` file, which I was told not to touch.
 
