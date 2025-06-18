@@ -68,3 +68,5 @@ Assumptions:
       (a.date.getTime() - b.date.getTime()) * (sort === "asc" ? 1 : -1)
   );
   ```
+
+  MDN (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#parameters) says that a negative value indicates that a should come before b (which is ascending).
